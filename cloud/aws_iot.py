@@ -16,30 +16,9 @@ class AWSIoTClient:
         self.client.configureConnectDisconnectTimeout(10)  # 10 sec
         self.client.configureMQTTOperationTimeout(5)  # 5 sec
 
-    def connect(self):
-        self.client.connect()
-        print("Connected to AWS IoT Core")
 
-    ## Callback function for AWS IoT Core
-    def on_message(self, client, userdata, message):
-        print("Received message:", message.payload.decode("utf-8"), "from topic:", message.topic)
-
-    def subscribe(self, topic, qos):
-        self.client.subscribe(topic, qos, self.on_message)
-
-    def publish(self, topic, message, qos):
-        self.client.publish(topic, message, qos)
-
-    def run(self):
-        self.connect()
-        self.subscribe("example/topic", 1)
-        self.publish("example/topic", "Hello from the Python SDK", 1)
-
-        while True:
-            time.sleep(1)
 
 """
 if __name__ == "__main__":
     aws_iot_client = AWSIoTClient()
-    aws_iot_client.run()
 """

@@ -1,1 +1,0 @@
-"""The following class adapts the pyserial serial class to act as a serial port emulator for the edge devices."""
