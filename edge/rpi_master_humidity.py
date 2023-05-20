@@ -2,7 +2,7 @@ from local_mqtt import paho_mqtt
 import threading as threading
 import queue as queue
 import logging as logging
-from cloud.aws_iot import AWSIoTClient
+from cloud.aws_mqtt_client import AWSIoTClient
 import time as time
 from serial import Serial
 from env_vars import SERIAL_BAUD_RATE,ARD_HUMIDITY_ACTUATOR_TOPIC,ARD_HUMIDITY_SENSOR_TOPIC, ARD_HUMIDITY_PORT
@@ -29,7 +29,7 @@ def read_data_t():
             continue
 
 
-def change_water_pump_threshhold(client, userdata, msg):
+def change_water_pump_threshold(client, userdata, msg):
     serial.write((msg.payload).encode())
 
 
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     local_mqtt_client.on_connect = lambda client, userdata, flags, rc: print("Connected to local MQTT broker")
 
     # for processing control messages from the flask server
-    local_mqtt_client.message_callback_add(ARD_HUMIDITY_ACTUATOR_TOPIC, trigger_water_pump(client=None, userdata=None, msg=None))
+    local_mqtt_client.message_callback_add(ARD_HUMIDITY_ACTUATOR_TOPIC, change_water_pump_threshold(client=None, userdata=None, msg=None))
 
     #bridge between local and aws cloud mqtt
     local_mqtt_client.message_callback_add("sensors/#", foward_to_aws_mqtt(client=None, userdata=None, msg=None))

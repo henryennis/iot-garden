@@ -1,0 +1,2 @@
+C:\dev\iot-garden\testing\serial\Emulate_serial\x64\Debug\Emulate_serial.exe
+C:\dev\iot-garden\tests\serial\Emulate_serial\x64\Debug\Emulate_serial.exe

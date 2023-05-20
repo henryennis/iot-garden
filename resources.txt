@@ -1,0 +1,10 @@
+https://aws.amazon.com/blogs/iot/use-aws-iot-core-mqtt-broker-with-standard-mqtt-libraries/
+https://cedalo.com/blog/how-to-install-mosquitto-mqtt-broker-on-windows/
+
+Sending sensor data every x seconds (ardunio):
+// Check if data should be sent
+    if (millis() - dataSentStartTime < dataToBeSentTime ) {
+      digitalWrite(BUZZER_PIN, HIGH);
+    } else {
+      digitalWrite(BUZZER_PIN, LOW);
+    }

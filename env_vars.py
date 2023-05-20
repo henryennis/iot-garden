@@ -1,11 +1,13 @@
-MQTT_KEEP_ALIVE_SECONDS = 10
-ENDPOINT = "your-aws-iot-endpoint.amazonaws.com"
-ROOT_CA = "root-CA.crt"
-DEVICE_CERT = "your-device.cert.pem"
-DEVICE_PRIVATE_KEY = "your-device.private.key"
+AWS_AUTH_PATH = "./auth"
 
-RPI_SLAVE_IP = ""
-RPI_SLAVE2_IP = ""
+
+AWS_IOT_ENDPOINT="a2t49keckhjlsm-ats.iot.ap-southeast-2.amazonaws.com",
+AWS_IOT_CERT_PATH=f"{AWS_AUTH_PATH}/bridgev2.cert.pem"
+AWS_IOT_PKEY_PATH=f"{AWS_AUTH_PATH}/bridgev2.private.key",
+AWS_IOT_CA_PATH=f"{AWS_AUTH_PATH}/aws_root_ca.pem"
+#thing name
+AWS_IOT_CLIENT_ID="bridgev2",
+
 
 
 ARD_HUMIDITY_SENSOR_TOPIC = "sensors/humidity"
