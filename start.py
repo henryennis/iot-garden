@@ -20,7 +20,8 @@ def main():
 def exe(test_mode):
     if (test_mode):
         result = subprocess.run("C:\dev\iot-garden\tests\serial\Emulate_serial\x64\Debug\Emulate_serial.exe", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
-    result = subprocess.run("mosquito", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
+    result = subprocess.run("mosquito -c mosquitto.conf -v" , stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
+    rpi_edge1 = subprocess.run("mosquito -c mosquitto.conf -v" , stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
     
 
 if __name__ == "__main__":

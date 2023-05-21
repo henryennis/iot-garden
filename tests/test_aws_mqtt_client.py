@@ -4,9 +4,9 @@ from cloud.aws_mqtt_client import AWSMQTTClient
 
 class TestAWSMQTTClient(unittest.TestCase):
 
-    def test_client_connect(self):
+    async def test_client_connect(self):
         client = AWSMQTTClient()
-        result = client.connect()
+        result = await client.connect()
         self.assertTrue(result)
 
 

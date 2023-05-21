@@ -1,15 +1,18 @@
-from local_mqtt import paho_mqtt
 import threading as threading
+import paho.mqtt.client as paho_mqtt
 import queue as queue
 import logging as logging
-from cloud.aws_mqtt_client import AWSIoTClient
+import os
 import time as time
 from serial import Serial
-from env_vars import SERIAL_BAUD_RATE,ARD_HUMIDITY_ACTUATOR_TOPIC,ARD_HUMIDITY_SENSOR_TOPIC, ARD_HUMIDITY_PORT
 
-
+ARD_HUMIDITY_SENSOR_TOPIC = os.environ.get("ARD_HUMIDITY_SENSOR_TOPIC")
+ARD_HUMIDITY_ACTUATOR_TOPIC = os.environ.get("ARD_HUMIDITY_ACTUATOR_TOPIC")
+ARD_HUMIDITY_PORT = os.environ.get("ARD_HUMIDITY_PORT")
+SERIAL_BAUD_RATE = os.environ.get("SERIAL_BAUD_RATE")
 
 def local_mqtt_t():
+    local_mqtt_client.connect("localhost", 1883)
     while True:
         if not serial_data_queue.empty():
             data = serial_data_queue.get()
@@ -30,38 +33,23 @@ def read_data_t():
 
 
 def change_water_pump_threshold(client, userdata, msg):
-    serial.write((msg.payload).encode())
+    serial.write(str(msg.payload + "\n").encode())
 
-
-def foward_to_aws_mqtt(msg):
-    aws_iot_client.publish(msg.topic, msg.data)
-
-
-if __name__ == "__main__":
-
+def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
     #global makes the variable accessible to all scopes
     global serial
-    serial = Serial(ARD_HUMIDITY_PORT, SERIAL_BAUD_RATE)
+    serial = Serial(ARD_HUMIDITY_PORT, 9600)
     time.sleep(2)
 
-    global aws_iot_client
-    aws_iot_client = AWSIoTClient()
-    aws_iot_client.connect()
-
-    
     global local_mqtt_client
-    local_mqtt_client = paho_mqtt.MyMQTTClient()
-    local_mqtt_client.connect("localhost", 1883)
-    local_mqtt_client.subscribe("actuators/ardunio2/humidity", 1)
+    local_mqtt_client = paho_mqtt.Client()
+    
     local_mqtt_client.on_connect = lambda client, userdata, flags, rc: print("Connected to local MQTT broker")
 
     # for processing control messages from the flask server
     local_mqtt_client.message_callback_add(ARD_HUMIDITY_ACTUATOR_TOPIC, change_water_pump_threshold(client=None, userdata=None, msg=None))
-
-    #bridge between local and aws cloud mqtt
-    local_mqtt_client.message_callback_add("sensors/#", foward_to_aws_mqtt(client=None, userdata=None, msg=None))
 
     global serial_data_queue
     serial_data_queue = queue.Queue()
@@ -76,3 +64,8 @@ if __name__ == "__main__":
 
     read_data_thread.start()
     mqtt_thread.start()
+
+
+if __name__ == "__main__":
+    main()
+    

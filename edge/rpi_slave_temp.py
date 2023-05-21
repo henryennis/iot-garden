@@ -1,11 +1,11 @@
-from local_mqtt import paho_mqtt
+import paho.mqtt.client as local_mqtt
 import threading as threading
 import queue as queue
 import logging as logging
 
 import time as time
 from serial import Serial
-from env_vars import SERIAL_BAUD_RATE, SERIAL_PORT1
+
 
 
 
@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
 
     global local_mqtt_client
-    local_mqtt_client = paho_mqtt.MyMQTTClient()
+    local_mqtt_client = local_mqtt.Client()
     local_mqtt_client.connect("localhost", 1883)
     
 
