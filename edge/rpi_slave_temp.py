@@ -52,7 +52,7 @@ if __name__ == "__main__":
     # Start the functions concurrently using threads
     mqtt_thread = threading.Thread(target=local_mqtt_t)
     read_data_thread = threading.Thread(target=read_data_t)
-
+    
     mqtt_thread.daemon = True
     read_data_thread.daemon = True
 

@@ -18,8 +18,6 @@ def main():
     exe(args)
 
 def exe(test_mode):
-    if (test_mode):
-        result = subprocess.run("C:\dev\iot-garden\tests\serial\Emulate_serial\x64\Debug\Emulate_serial.exe", stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
     result = subprocess.run("mosquitto -c mosquitto.conf -v" , stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, shell=True)
     
 

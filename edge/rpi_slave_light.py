@@ -5,7 +5,7 @@ import logging as logging
 
 import time as time
 from serial import Serial
-from env_vars import SERIAL_BAUD_RATE, SERIAL_PORT1
+
 
 
 
