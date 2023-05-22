@@ -17,7 +17,6 @@ SERIAL_BAUD_RATE = os.getenv("SERIAL_BAUD_RATE")
 LOCAL_INTERFACE_IP = os.getenv("LOCAL_INTERFACE_IP")
 
 def local_mqtt_t():
-    local_mqtt_client.connect(LOCAL_INTERFACE_IP, 1883)
     while True:
         if not serial_data_queue.empty():
             data = serial_data_queue.get()
@@ -42,14 +41,8 @@ def read_data_t():
             continue
 
 def change_water_pump_threshold(client, userdata, message):
-    logging.info(f"Received data to update threshold: {message} from API")
-    serial.write(str(message.payload + "\n").encode())
-
-def on_message(client, userdata, message):
-    print("Received message '" + str(message.payload) + "' on topic '"
-        + message.topic + "' with QoS " + str(message.qos))
-
-
+    logging.info(f"Received data to update threshold: {message.payload} from API")
+    serial.write(message.payload)
 
 def main():
     #global makes the variable accessible to all scopes
@@ -61,10 +54,11 @@ def main():
     local_mqtt_client = paho_mqtt.Client("edge")
     
     local_mqtt_client.on_connect = lambda client, userdata, flags, rc: logging.info(f"Connected to local MQTT broker with result code: {rc}")
-
-    local_mqtt_client.subscribe(ARD_HUMIDITY_ACTUATOR_TOPIC)
+    local_mqtt_client.message_callback_add(ARD_HUMIDITY_ACTUATOR_TOPIC, change_water_pump_threshold)
+    
     # for processing control messages from the flask server
-    local_mqtt_client.on_message = on_message
+    local_mqtt_client.connect(LOCAL_INTERFACE_IP, 1883)
+    local_mqtt_client.subscribe(ARD_HUMIDITY_ACTUATOR_TOPIC)
 
     global serial_data_queue
     serial_data_queue = queue.Queue()

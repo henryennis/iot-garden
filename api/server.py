@@ -41,7 +41,7 @@ def lightapi():
 @app.route('/humidityapi', methods=['POST'])
 def humidityapi():
     humidity = request.form.get('humidity')
-    local_mqtt_client.publish(ARD_HUMIDITY_ACTUATOR_TOPIC, "humidity")
+    local_mqtt_client.publish(ARD_HUMIDITY_ACTUATOR_TOPIC, humidity)
     return 'Values received: {}'.format(humidity)
 
 def local_mqtt_t():
@@ -49,7 +49,6 @@ def local_mqtt_t():
         local_mqtt_client.loop(timeout=1.0, max_packets=1)
 
 def main():
-
     mqtt_thread = threading.Thread(target=local_mqtt_t)
     global local_mqtt_client
     local_mqtt_client = paho_mqtt.Client("api")
