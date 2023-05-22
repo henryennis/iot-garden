@@ -1,5 +1,13 @@
 https://aws.amazon.com/blogs/iot/use-aws-iot-core-mqtt-broker-with-standard-mqtt-libraries/
 https://cedalo.com/blog/how-to-install-mosquitto-mqtt-broker-on-windows/
+https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+https://docs.aws.amazon.com/iot/latest/developerguide/iot-create-role.html
+https://docs.aws.amazon.com/iot/latest/developerguide/timestream-rule-action.html
+https://docs.aws.amazon.com/iot/latest/developerguide/iot-create-role.html
+https://aws.amazon.com/blogs/iot/how-to-bridge-mosquitto-mqtt-broker-to-aws-iot/
+https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html
+
+
 
 Sending sensor data every x seconds (ardunio):
 // Check if data should be sent

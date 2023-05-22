@@ -1,6 +1,9 @@
-./cloud/auth/*
-
-
+./cloud/auth*
+/cloud/auth*
+./aws
+aws
+aws/*
+./aws/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

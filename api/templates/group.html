@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Set Threshold</title>
+</head>
+<body>
+    <h1>IOT Control: Update Thresholds</h1>
+    <form action="/tempapi" method="post">
+        <label for="temp">Turn fan on @:</label>
+        <input type="text" id="temp" name="temp">
+        <span class="unit">°C</span>
+        <input type="submit" value="Submit">
+    </form>
+    <br><br>
+        <form action="/lightapi" method="post">
+        <label for="light">Turn light on @:</label>
+        <input type="text" id="light" name="light"> 
+        <span class="unit">Ω</span>
+        <input type="submit" value="Submit">
+    </form>
+    <br><br>
+        <form action="/humidityapi" method="post">
+        <label for="humidity">Turn watering system on @</label>
+        <input type="text" id="humidity" name="humidity">
+        <span class="unit">%</span>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
