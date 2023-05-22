@@ -23,7 +23,6 @@ int main() {
     while (true) {
         std::string data = "ping\n";
         serial.write(data.c_str(), data.size());
-        serial.flush();
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 

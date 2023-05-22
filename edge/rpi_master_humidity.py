@@ -23,9 +23,8 @@ def local_mqtt_t():
 
 def read_data_t():
     while True:
-        data = serial.readline().decode().strip()
+        data = serial.readline().decode()
         try:
-            data = float(data)
             serial_data_queue.put(data)
         except ValueError:
             #skip iteration if the value is not sensor data
@@ -41,7 +40,7 @@ def main():
     #global makes the variable accessible to all scopes
     global serial
     serial = Serial(ARD_HUMIDITY_PORT, 9600)
-    time.sleep(2)
+    time.sleep(4)
 
     global local_mqtt_client
     local_mqtt_client = paho_mqtt.Client()
@@ -49,7 +48,7 @@ def main():
     local_mqtt_client.on_connect = lambda client, userdata, flags, rc: print("Connected to local MQTT broker")
 
     # for processing control messages from the flask server
-    local_mqtt_client.message_callback_add(ARD_HUMIDITY_ACTUATOR_TOPIC, change_water_pump_threshold(client=None, userdata=None, msg=None))
+    #local_mqtt_client.message_callback_add(ARD_HUMIDITY_ACTUATOR_TOPIC, change_water_pump_threshold(client, userdata, msg))
 
     global serial_data_queue
     serial_data_queue = queue.Queue()
