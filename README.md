@@ -63,7 +63,9 @@ Before proceeding with the installation process, make sure that you have the fol
 # Running the project
 1. Clone the github repository
     ```
-    https://github.com/xSCIven/iot-garden
+    git clone https://github.com/xSCIven/iot-garden & cd iot-garden
     ```
-2.
-.....
+2. Install pip packages
+    ```
+    pip install -r requirements.txt
+    ```
