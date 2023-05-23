@@ -55,7 +55,7 @@ def main():
     local_mqtt_client.on_connect = lambda client, userdata, flags, rc: logging.info(f"Connected to local MQTT broker with result code: {rc}")
     local_mqtt_client.connect(LOCAL_INTERFACE_IP, 1883)
     mqtt_thread.start()
-    app.run(debug=False, port=3000 host='0.0.0.0')
+    app.run(debug=False, port=3000, host="0.0.0.0")
     #mqtt_thread.join()
 
 main()
