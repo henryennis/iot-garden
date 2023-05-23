@@ -45,6 +45,8 @@ def change_water_pump_threshold(client, userdata, message):
     serial.write(message.payload)
 
 def main():
+    global serial_lock
+    serial_lock = threading.Lock()
     #global makes the variable accessible to all scopes
     global serial
     serial = Serial(ARD_LIGHT_PORT, SERIAL_BAUD_RATE)
