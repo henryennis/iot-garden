@@ -27,7 +27,8 @@ def local_mqtt_t():
 
 def read_data_t():
     while True:
-        data = serial.readline().decode()
+        with serial_lock: 
+            data = serial.readline().decode()
         if data is None:
             #wait some more for port
             continue
@@ -42,9 +43,12 @@ def read_data_t():
 
 def change_water_pump_threshold(client, userdata, message):
     logging.info(f"Received data to update threshold: {message.payload} from API")
-    serial.write(message.payload)
+    with serial_lock:
+        serial.write(message.payload)
 
 def main():
+    global serial_lock
+    serial_lock = threading.Lock()
     #global makes the variable accessible to all scopes
     global serial
     serial = Serial(ARD_HUMIDITY_PORT, SERIAL_BAUD_RATE)
