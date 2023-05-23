@@ -20,7 +20,7 @@ def local_mqtt_t():
     while True:
         if not serial_data_queue.empty():
             data = serial_data_queue.get()
-            payload = json.dumps({"sensor": "light", "lightc": data})
+            payload = json.dumps({"sensor": "light", "lightl": data})
             local_mqtt_client.publish(ARD_LIGHT_SENSOR_TOPIC, payload)
         #Calling mqtt.loop() will process the network traffic and callbacks
         local_mqtt_client.loop(timeout=1.0, max_packets=1)
