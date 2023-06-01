@@ -1,4 +1,4 @@
-# Installing AWS CLI, Mosquitto MQTT, and Python 3.x for the IoT Garden Project
+# Getting started with the IoT Garden Project
 
 ## Introduction
 This manual will guide you through the installation process of the AWS CLI, Mosquitto MQTT, and Python 3.x for the IoT Garden Project. These tools are essential for building and deploying IoT projects on the AWS platform and communicating with MQTT brokers.
