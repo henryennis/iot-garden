@@ -38,9 +38,9 @@ Before proceeding with the installation process, make sure that you have the fol
    aws iot create-thing --thing-name bridge
    ```
 2. Now we need a method of connecting our local broker to the MQTT broker in AWS cloud. To connect to the broker there are 3 authentication requirements:
-   - A cirtificate associated with the thing "bridge" we created earlier
+   - A certificate associated with the thing "bridge" we created earlier
    - Private key
-   - AWS root CA cirtificate
+   - AWS root CA certificate
 
    Run the following commands to download these objects into the ./authentication directory:
 
@@ -111,7 +111,7 @@ Before proceeding with the installation process, make sure that you have the fol
    ```
    python "./api/server.py"
    ```
-4. Launch the Fog server master node
+4. Launch the fog server master node
    ```
    python "./api/rpi_master_humidity"
    ```
