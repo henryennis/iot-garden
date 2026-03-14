@@ -2,7 +2,7 @@
 
 int actuatorPin = 9;
 int sensorPin = 11; // change to A0 if light sensor, 11 is if using DHT11
-bool isTemp = true; // true = temp, false = humidity
+bool isTemp = false; // true = temp, false = humidity
 SimpleDHT11 sensor;
 
 // ranges
