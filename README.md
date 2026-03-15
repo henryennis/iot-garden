@@ -1,119 +1,125 @@
-# Getting started with the IoT Garden Project
+# IoT Garden
 
-## Introduction
-This manual will guide you through the installation process of the AWS CLI, Mosquitto MQTT, and Python 3.x for the IoT Garden Project. These tools are essential for building and deploying IoT projects on the AWS platform and communicating with MQTT brokers.
+A multi-tier smart garden monitoring and control system built with Arduino, Raspberry Pi, MQTT, and AWS.
+
+![Architecture](docs/images/architecture-hero.png)
+
+![Python](https://img.shields.io/badge/Python-3.x-3776AB?logo=python&logoColor=white)
+![C++](https://img.shields.io/badge/C++-Arduino-00599C?logo=cplusplus&logoColor=white)
+![MQTT](https://img.shields.io/badge/MQTT-Mosquitto-3C5280?logo=eclipsemosquitto&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-IoT_Core-FF9900?logo=amazonaws&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0-000000?logo=flask&logoColor=white)
+![Raspberry Pi](https://img.shields.io/badge/Raspberry_Pi-Fog_Nodes-A22846?logo=raspberrypi&logoColor=white)
+![Arduino](https://img.shields.io/badge/Arduino-Edge_Devices-00878F?logo=arduino&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+## Architecture
+
+The system is organized into four tiers:
+
+**Edge Layer**: Arduino microcontrollers read environmental sensors (humidity via DHT11, light via photoresistor, temperature via DHT11) and control actuators (water pump, grow light, fan) based on configurable thresholds.
+
+**Fog Layer**: Raspberry Pi nodes act as intermediaries. Each Pi runs a Python service that reads sensor data over USB serial, publishes JSON telemetry to the local MQTT broker, and subscribes to actuator topics to forward threshold updates back to the Arduino.
+
+**Broker Layer**: A Mosquitto MQTT broker on the management Pi handles local pub/sub and bridges sensor topics to AWS IoT Core over TLS with X.509 client certificate authentication.
+
+**Cloud Layer**: AWS IoT Core receives bridged telemetry and routes it via IoT Rules to Amazon Timestream for time-series storage and CloudWatch for logging and alerting.
+
+A Flask web API serves a threshold control UI and publishes actuator commands to the local broker.
+
+## Features
+
+- Real-time sensor monitoring (humidity, light, temperature)
+- Web-based actuator threshold control via Flask UI
+- Thread-safe serial communication between Pi and Arduino
+- MQTT pub/sub with QoS 1 for reliable telemetry delivery
+- TLS-secured bridge from local Mosquitto to AWS IoT Core
+- Time-series storage in Amazon Timestream
+- CloudWatch logging and alerting
+- Systemd-ready services for headless deployment
+
+## MQTT Topic Structure
+
+| Topic | Direction | Purpose |
+|---|---|---|
+| `sensors/humidity` | Arduino > Pi > Broker > AWS | Humidity telemetry |
+| `sensors/light` | Arduino > Pi > Broker > AWS | Light level telemetry |
+| `sensors/temperature` | Arduino > Pi > Broker > AWS | Temperature telemetry |
+| `actuators/water_pump` | Web UI > Broker > Pi > Arduino | Humidity threshold control |
+| `actuators/light` | Web UI > Broker > Pi > Arduino | Light threshold control |
+| `actuators/fan` | Web UI > Broker > Pi > Arduino | Temperature threshold control |
+
+## Project Structure
+
+```
+iot-garden/
+├── api/
+│   ├── server.py              # Flask web API and threshold UI
+│   └── templates/
+│       └── group.html         # Dashboard template
+├── fog/
+│   ├── rpi_master_humidity.py # Humidity fog service (management Pi)
+│   ├── rpi_slave_light.py     # Light fog service
+│   └── rpi_slave_temp.py      # Temperature fog service
+├── edge/
+│   └── arduino_devices/
+│       ├── Humidity_Arduino_Sketch.ino
+│       ├── Light_Arduino_Sketch.ino
+│       └── Temperature_Arduino_Sketch.ino
+├── docs/
+│   └── architecture.md        # Full architecture and operations guide
+├── mosquitto.conf             # Broker config with AWS IoT bridge
+├── .env.example               # Environment variable template
+├── requirements.txt           # Python dependencies
+└── start.py                   # Launch helper
+```
 
 ## Prerequisites
-Before proceeding with the installation process, make sure that you have the following prerequisites:
 
-- Debian operating system
-- Internet connection
+### Hardware
+- 1x Raspberry Pi (management node, runs broker, web API, and humidity service)
+- 2x Raspberry Pi (fog nodes, light and temperature services)
+- 3x Arduino (with DHT11 sensors and/or photoresistors)
+- USB cables for serial connections
 
-## Installing AWS CLI
-1. Open the terminal and run the following command to install AWS CLI:
+### Software
+- Raspberry Pi OS (Debian-based)
+- Python 3.x
+- Mosquitto MQTT broker
+- AWS CLI (configured with IoT permissions)
+- Arduino IDE (for flashing sketches)
 
-   ```
-   sudo apt-get update && sudo apt-get install awscli
-   ```
+## Getting Started
 
-2. Once the installation is complete, run the following command to check the version of AWS CLI:
+1. **AWS IoT Setup**: Create a Thing named `bridge`, generate certificates, and attach a policy allowing publish on `sensors/#`. Download the cert, private key, and Amazon Root CA.
 
-   ```
-   aws --version
-   ```
+2. **Configure Mosquitto**: Copy `mosquitto.conf` and update the AWS endpoint and certificate paths to match your environment.
 
-   You should see the version of AWS CLI that you have installed.
+3. **Environment**: Copy `.env.example` to `.env` and fill in your serial ports, broker IP, and AWS paths.
 
-2. Configure AWS CLI to use your AWS account
-
-   [Using environment variables to configure the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html)
-
-## Setting up AWS IoT Core & CloudWatch
-   The following setup describes how to create a new IoT device in AWS cloud that will serve as the entry point for MQTT data published on the Fog network (local --> cloud).
-
-1. Create an IoT device that will serve as the host for MQTT data
-   The device is named bridge because it is resposible for receiving the data our local MQTT broker publishes.
-
-   ```
-   aws iot create-thing --thing-name bridge
-   ```
-2. Now we need a method of connecting our local broker to the MQTT broker in AWS cloud. To connect to the broker there are 3 authentication requirements:
-   - A certificate associated with the thing "bridge" we created earlier
-   - Private key
-   - AWS root CA certificate
-
-   Run the following commands to download these objects into the ./authentication directory:
-
-   ```
-   cd ./authentication
-   ```
-   ```
-   aws iot create-keys-and-certificate --set-as-active --certificate-pem-outfile certificate.pem.crt --private-key-outfile private.pem.key
-   ```
-   ```
-   wget -O root.ca.pem https://www.amazontrust.com/repository/AmazonRootCA1.pem
-   ```
-   ```
-   aws iot attach-thing-principal --thing-name bridge --principal <CERTIFICATE_ARN>
-   ```
-## Installing and configuring Mosquitto MQTT
-1. Open the terminal and run the following command to install Mosquitto MQTT:
-
-   ```
-   sudo apt-get update && sudo apt-get install mosquitto mosquitto-clients
+4. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
    ```
 
-2. Once the installation is complete, run the following command to stop the Mosquitto MQTT broker service (we wish to run Mosquitto broker as a program):
+5. **Flash Arduinos**: Upload the appropriate sketch to each Arduino using the Arduino IDE.
 
-   ```
-   sudo systemctl stop mosquitto && sudo systemctl disable mosquitto
-   ```
-3. Now you need to edit the mosquitto.conf file provided by the repo by replacing the following with the path to your authentication objects
-
-   ```
-   bridge_cafile yourpath
-   bridge_certfile yourpath
-   bridge_keyfile yourpath
-   ```
-4. Get your AWS IoT endpoint domain
-
-   ```
-   aws iot describe-endpoint --endpoint-type iot:Data-ATS
-   ```
-5. Edit the mosquitto.conf file by changing the endpoint paramater, replacing it with your own.
-
-
-## Installing Python 3.x
-1. Open the terminal and run the following command to install Python 3.x:
-
-   ```
-   sudo apt-get update && sudo apt-get install python3
-   ```
-
-2. Once the installation is complete, run the following command to check the version of Python 3.x:
-
-   ```
-   python3 --version
-   ```
-
-   You should see the version of Python 3.x that you have installed.
-
-# Running the project
-1. Install pip packages
-    ```
-    pip install -r requirements.txt
-    ```
-2. Launch Mosquitto broker
-   ```
+6. **Run**
+   ```bash
+   # Start the broker
    mosquitto -c mosquitto.conf -v
-   ```
-3. Launch the web API
-   ```
-   python "./api/server.py"
-   ```
-4. Launch the fog server master node
-   ```
-   python "./api/rpi_master_humidity"
+
+   # Start the web API
+   python api/server.py
+
+   # Start fog services (one per Pi)
+   python fog/rpi_master_humidity.py
+   python fog/rpi_slave_light.py
+   python fog/rpi_slave_temp.py
    ```
 
+For full deployment details including systemd units, TLS setup, Timestream configuration, and troubleshooting, see [docs/architecture.md](docs/architecture.md).
 
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
